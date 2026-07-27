@@ -2,10 +2,15 @@ const dotenv = require("dotenv");
 dotenv.config();
 const http = require("http");
 const app = require("./app");
+const connectDB = require("./config/db");
+
 const PORT = process.env.PORT || 3000;
 
 // create http server
 const server = http.createServer(app);
+
+// connect to database
+connectDB();
 
 // start the server
 server.listen(PORT, () => {

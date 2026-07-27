@@ -20,7 +20,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
 
 // health check route
-app.get("/", (req, res) => {
+app.get("/health", (req, res) => {
   res.send("Hello, World!");
 });
 
