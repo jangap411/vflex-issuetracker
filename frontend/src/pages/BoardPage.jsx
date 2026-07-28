@@ -1,7 +1,186 @@
-import React from "react";
+import React, { useState } from "react";
+import KanbanBoard from "../components/KanbanBoard";
+import CreateTaskModal from "../components/CreateTaskModal";
+import TaskDetailModal from "../components/TaskDetailModal";
+import { initialColumns, initialTasks } from "../mockData";
+import {
+  Filter,
+  SlidersHorizontal,
+  Layers,
+  CheckCircle2,
+  AlertTriangle,
+  ListFilter,
+  Grid2X2,
+} from "lucide-react";
 
-const BoardPage = () => {
-  return <div>BoardPage</div>;
+const BoardPage = ({
+  searchQuery,
+  onOpenCreateTask,
+  isCreateModalOpen,
+  setIsCreateModalOpen,
+  defaultColumnForCreate,
+}) => {
+  const [columns] = useState(initialColumns);
+  const [tasks, setTasks] = useState(initialTasks);
+  const [activeFilter, setActiveFilter] = useState("all"); // all, my_issues, high_priority
+  const [selectedTask, setSelectedTask] = useState(null);
+
+  // Statistics
+  const totalCount = tasks.length;
+  const inProgressCount = tasks.filter(
+    (t) => t.status === "in_progress",
+  ).length;
+  const inReviewCount = tasks.filter((t) => t.status === "in_review").length;
+  const doneCount = tasks.filter((t) => t.status === "done").length;
+  const highPriorityCount = tasks.filter(
+    (t) => t.priority.toLowerCase() === "high",
+  ).length;
+
+  const handleCreateTask = (newTask) => {
+    setTasks([newTask, ...tasks]);
+  };
+
+  const handleMoveTask = (taskToMove) => {
+    const statusOrder = ["backlog", "in_progress", "in_review", "done"];
+    const currentIndex = statusOrder.indexOf(taskToMove.status);
+    const nextStatus = statusOrder[(currentIndex + 1) % statusOrder.length];
+
+    setTasks(
+      tasks.map((t) =>
+        t.id === taskToMove.id ? { ...t, status: nextStatus } : t,
+      ),
+    );
+  };
+
+  const handleUpdateTaskStatus = (taskId, newStatus) => {
+    setTasks(
+      tasks.map((t) => (t.id === taskId ? { ...t, status: newStatus } : t)),
+    );
+    if (selectedTask && selectedTask.id === taskId) {
+      setSelectedTask({ ...selectedTask, status: newStatus });
+    }
+  };
+
+  const handleDeleteTask = (taskId) => {
+    setTasks(tasks.filter((t) => t.id !== taskId));
+    setSelectedTask(null);
+  };
+
+  return (
+    <div className="p-4 lg:p-8 space-y-6">
+      {/* Page Title & Stats Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary-fixed text-on-primary-fixed">
+              Sprint #42 Active
+            </span>
+            <span className="text-xs text-outline font-medium">
+              Ends in 4 days
+            </span>
+          </div>
+          <h1 className="text-2xl font-bold text-on-surface">
+            Modern Issue Board
+          </h1>
+        </div>
+
+        {/* Quick Stats Badges */}
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-surface-container/60 border border-outline-variant/60">
+            <Layers className="w-4 h-4 text-primary" />
+            <span className="text-xs text-on-surface font-semibold">
+              {totalCount} Total Issues
+            </span>
+          </div>
+          <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-surface-container/60 border border-outline-variant/60">
+            <AlertTriangle className="w-4 h-4 text-amber-500" />
+            <span className="text-xs text-on-surface font-semibold">
+              {highPriorityCount} High Priority
+            </span>
+          </div>
+          <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-surface-container/60 border border-outline-variant/60">
+            <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+            <span className="text-xs text-on-surface font-semibold">
+              {doneCount} Completed
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Filter Tabs & Toolbar */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 p-2 rounded-2xl bg-surface-container-low border border-outline-variant/60">
+        {/* Filter Pills */}
+        <div className="flex items-center gap-1 overflow-x-auto pb-1 sm:pb-0">
+          <button
+            onClick={() => setActiveFilter("all")}
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap ${
+              activeFilter === "all"
+                ? "bg-primary text-on-primary shadow-sm shadow-primary/20"
+                : "text-on-surface-variant hover:bg-surface-container hover:text-on-surface"
+            }`}
+          >
+            All Issues ({totalCount})
+          </button>
+          <button
+            onClick={() => setActiveFilter("my_issues")}
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap ${
+              activeFilter === "my_issues"
+                ? "bg-primary text-on-primary shadow-sm shadow-primary/20"
+                : "text-on-surface-variant hover:bg-surface-container hover:text-on-surface"
+            }`}
+          >
+            Assigned to Me
+          </button>
+          <button
+            onClick={() => setActiveFilter("high_priority")}
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap ${
+              activeFilter === "high_priority"
+                ? "bg-primary text-on-primary shadow-sm shadow-primary/20"
+                : "text-on-surface-variant hover:bg-surface-container hover:text-on-surface"
+            }`}
+          >
+            🔥 High Priority ({highPriorityCount})
+          </button>
+        </div>
+
+        {/* View Toggle / Sort */}
+        <div className="flex items-center justify-end gap-2 text-xs">
+          <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-outline-variant/60 text-on-surface-variant hover:bg-surface-container">
+            <SlidersHorizontal className="w-3.5 h-3.5" />
+            <span>Sort by Priority</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Main Kanban Board Container */}
+      <KanbanBoard
+        columns={columns}
+        tasks={tasks}
+        searchQuery={searchQuery}
+        activeFilter={activeFilter}
+        onTaskClick={(task) => setSelectedTask(task)}
+        onMoveTask={handleMoveTask}
+        onOpenCreateTask={onOpenCreateTask}
+      />
+
+      {/* Create Task Modal */}
+      <CreateTaskModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onCreateTask={handleCreateTask}
+        defaultStatus={defaultColumnForCreate}
+      />
+
+      {/* Task Detail Modal */}
+      <TaskDetailModal
+        task={selectedTask}
+        isOpen={!!selectedTask}
+        onClose={() => setSelectedTask(null)}
+        onUpdateStatus={handleUpdateTaskStatus}
+        onDeleteTask={handleDeleteTask}
+      />
+    </div>
+  );
 };
 
 export default BoardPage;

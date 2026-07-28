@@ -32,39 +32,68 @@ const App = () => {
   };
 
   return (
-    <>
-      <Router>
-        <Routes>
-          {/* Auth Page */}
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/signup" element={<SignupPage />} />
+    <Router>
+      <Routes>
+        {/* Auth Pages without App Shell */}
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
 
-          {/* Main Page */}
-          <Route
-            path="*"
-            element={
-              <div className="min-h-screen bg-surface text-on-surface flex">
-                {/* Side Nav */}
-                <SidebarNav />
+        {/* Main Application Shell */}
+        <Route
+          path="*"
+          element={
+            <div className="min-h-screen bg-surface text-on-surface flex">
+              {/* Sidebar Navigation */}
+              <SidebarNav
+                isOpen={isSidebarOpen}
+                onClose={() => setIsSidebarOpen(false)}
+              />
 
-                {/* top nav */}
-                <TopAppBar />
+              {/* Main Content Area */}
+              <div className="flex-1 flex flex-col lg:pl-64 min-w-0">
+                <TopAppBar
+                  searchQuery={searchQuery}
+                  setSearchQuery={setSearchQuery}
+                  onOpenCreateTask={handleOpenCreateTask}
+                  onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+                  isDarkMode={isDarkMode}
+                  setIsDarkMode={setIsDarkMode}
+                />
 
-                {/* Main Content area*/}
-                <div className="flex-1 flex flex-col lg:pl-64 min-w-0">
-                  <main className="flex-1 overflow-x-hidden">
-                    <Routes>
-                      <Route path="/" element={<BoardPage />} />
-                      <Route path="/tasks" element={<BoardPage />} />
-                    </Routes>
-                  </main>
-                </div>
+                <main className="flex-1 overflow-x-hidden">
+                  <Routes>
+                    <Route
+                      path="/"
+                      element={
+                        <BoardPage
+                          searchQuery={searchQuery}
+                          onOpenCreateTask={handleOpenCreateTask}
+                          isCreateModalOpen={isCreateModalOpen}
+                          setIsCreateModalOpen={setIsCreateModalOpen}
+                          defaultColumnForCreate={defaultColumnForCreate}
+                        />
+                      }
+                    />
+                    <Route
+                      path="/tasks"
+                      element={
+                        <BoardPage
+                          searchQuery={searchQuery}
+                          onOpenCreateTask={handleOpenCreateTask}
+                          isCreateModalOpen={isCreateModalOpen}
+                          setIsCreateModalOpen={setIsCreateModalOpen}
+                          defaultColumnForCreate={defaultColumnForCreate}
+                        />
+                      }
+                    />
+                  </Routes>
+                </main>
               </div>
-            }
-          />
-        </Routes>
-      </Router>
-    </>
+            </div>
+          }
+        />
+      </Routes>
+    </Router>
   );
 };
 

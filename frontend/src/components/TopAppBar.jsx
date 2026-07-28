@@ -59,7 +59,7 @@ const TopAppBar = ({
         {/* AI Helper Badge */}
         <button className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-primary bg-primary-fixed hover:bg-primary-fixed-dim rounded-xl transition-colors">
           <Sparkles className="w-3.5 h-3.5" />
-          <span>AI Assist</span>
+          <span>Vflex AI Assist</span>
         </button>
 
         {/* Primary Create Task Button */}
