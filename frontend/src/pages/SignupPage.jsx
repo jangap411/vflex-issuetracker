@@ -126,6 +126,17 @@ const SignupPage = () => {
             <ArrowRight className="w-4 h-4" />
           </button>
         </form>
+
+        {/* Footer Link */}
+        <p className="text-center text-xs text-on-surface-variant mt-6">
+          Already have an account?{" "}
+          <Link
+            to="/login"
+            className="font-semibold text-primary hover:underline"
+          >
+            Sign In
+          </Link>
+        </p>
       </main>
     </div>
   );
