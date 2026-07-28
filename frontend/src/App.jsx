@@ -1,14 +1,35 @@
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import "./App.css";
-import LoginPage from "./pages/LoginPage";
-import SignupPage from "./pages/SignupPage";
-import BoardPage from "./pages/BoardPage";
 import SidebarNav from "./components/SidebarNav";
 import TopAppBar from "./components/TopAppBar";
+import BoardPage from "./pages/BoardPage";
+import LoginPage from "./pages/LoginPage";
+import SignupPage from "./pages/SignupPage";
 
-function App() {
-  const [count, setCount] = useState(0);
+const App = () => {
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [defaultColumnForCreate, setDefaultColumnForCreate] =
+    useState("backlog");
+
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add("dark");
+      document.documentElement.classList.remove("light");
+    } else {
+      document.documentElement.classList.add("light");
+      document.documentElement.classList.remove("dark");
+    }
+  }, [isDarkMode]);
+
+  const handleOpenCreateTask = (columnId = "backlog") => {
+    setDefaultColumnForCreate(
+      typeof columnId === "string" ? columnId : "backlog",
+    );
+    setIsCreateModalOpen(true);
+  };
 
   return (
     <>
@@ -45,6 +66,6 @@ function App() {
       </Router>
     </>
   );
-}
+};
 
 export default App;
