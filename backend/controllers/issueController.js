@@ -60,7 +60,7 @@ const createIssue = async (req, res, next) => {
       description,
       priority,
       status,
-      assignee,
+      assignedTo,
       labels,
       dueDate,
       attachments,
@@ -71,7 +71,7 @@ const createIssue = async (req, res, next) => {
       description,
       priority,
       status,
-      assignee,
+      assignedTo,
       labels,
       dueDate,
       attachments,
@@ -80,7 +80,7 @@ const createIssue = async (req, res, next) => {
 
     const populatedIssue = await Issue.findById(issue._id)
       .populate("createdBy", "fullName email avatar")
-      .populate("assignee", "fullName email avatar")
+      .populate("assignedTo", "fullName email avatar")
       .populate("labels", "name color");
     res.status(201).json({
       success: true,

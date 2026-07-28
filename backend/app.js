@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
 const helmet = require("helmet");
+const routes = require("./routes/index");
 
 const app = express();
 
@@ -24,7 +25,13 @@ app.get("/health", (req, res) => {
   res.send("Hello, World!");
 });
 
-// api routes
+/**
+ *
+ * api routes
+ *
+ * */
+//
+app.use("/api/v1", routes);
 
 //404 handler
 app.all(/.*/, (req, res) => {

@@ -70,8 +70,6 @@ issueSchema.pre("save", function (next) {
   if (this.status !== "DONE") {
     this.completedAt = null;
   }
-
-  next();
 });
 
 // virtual: isOverdue
