@@ -1,17 +1,18 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   CheckSquare,
   BarChart3,
   Settings,
-  LogIn,
-  UserPlus,
+  LogOut,
   Shield,
   FolderKanban,
 } from "lucide-react";
+import { logout } from "../services/auth";
 
 const SidebarNav = ({ isOpen, onClose }) => {
   const location = useLocation();
+  const navigate = useNavigate();
 
   const navItems = [
     { label: "Kanban Board", path: "/", icon: LayoutDashboard },
@@ -20,10 +21,11 @@ const SidebarNav = ({ isOpen, onClose }) => {
     { label: "Settings", path: "/settings", icon: Settings },
   ];
 
-  const authItems = [
-    { label: "Login", path: "/login", icon: LogIn },
-    { label: "Sign Up", path: "/signup", icon: UserPlus },
-  ];
+  const handleLogout = async () => {
+    await logout();
+    onClose();
+    navigate("/login", { replace: true });
+  };
 
   return (
     <>
@@ -104,28 +106,14 @@ const SidebarNav = ({ isOpen, onClose }) => {
           <div className="px-3 mt-6 mb-2 text-[11px] font-bold uppercase tracking-wider text-outline">
             Authentication
           </div>
-          {authItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = location.pathname === item.path;
-            return (
-              <Link
-                key={item.path}
-                to={item.path}
-                onClick={onClose}
-                className={`
-                  flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all
-                  ${
-                    isActive
-                      ? "bg-primary text-on-primary shadow-sm shadow-primary/20"
-                      : "text-on-surface-variant hover:bg-surface-container hover:text-on-surface"
-                  }
-                `}
-              >
-                <Icon className="w-4 h-4" />
-                <span>{item.label}</span>
-              </Link>
-            );
-          })}
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-on-surface-variant transition-all hover:bg-surface-container hover:text-on-surface"
+          >
+            <LogOut className="w-4 h-4" />
+            <span>Log Out</span>
+          </button>
         </div>
 
         {/* User Footer Profile */}

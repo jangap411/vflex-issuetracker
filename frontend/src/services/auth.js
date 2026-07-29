@@ -25,4 +25,13 @@ export const register = async (details) => saveSession(await apiRequest("/auth/r
 export const getCurrentUser = () => apiRequest("/auth/me");
 export const getUsers = () => apiRequest("/auth/users");
 export const getSession = getStoredSession;
-export const logout = clearStoredSession;
+export const logout = async () => {
+  try {
+    return await apiRequest("/auth/logout");
+  } catch {
+    return null;
+  } finally {
+    // Always remove the local token, even if the server cannot be reached.
+    clearStoredSession();
+  }
+};
