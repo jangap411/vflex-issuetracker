@@ -34,6 +34,8 @@ const App = () => {
     setIsCreateModalOpen(true);
   };
 
+  const session = getSession();
+
   return (
     <Router>
       <Routes>
@@ -45,12 +47,13 @@ const App = () => {
         <Route
           path="*"
           element={
-            getSession() ? (
+            session ? (
               <div className="min-h-screen bg-surface text-on-surface flex">
                 {/* Sidebar Navigation */}
                 <SidebarNav
                   isOpen={isSidebarOpen}
                   onClose={() => setIsSidebarOpen(false)}
+                  user={session.user}
                 />
 
                 {/* Main Content Area */}
