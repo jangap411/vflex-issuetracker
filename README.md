@@ -9,3 +9,5 @@ Issue tracker with a React/Vite frontend and Express/MongoDB API.
 3. Run `npm run dev` inside both `backend` and `frontend`.
 
 The frontend uses `VITE_API_URL` (including `/api/v1`) and authenticates protected issue requests with the token returned by the API.
+
+Login and registration are rate-limited to five requests per IP address every 15 minutes.
