@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import KanbanBoard from "../components/KanbanBoard";
 import CreateTaskModal from "../components/CreateTaskModal";
 import TaskDetailModal from "../components/TaskDetailModal";
-import { initialColumns } from "../mockData";
 import { getUsers } from "../services/auth";
 import {
   createIssue,
@@ -38,17 +37,23 @@ const BoardPage = ({
     const loadBoard = async () => {
       try {
         // Load tasks and selectable assignees together when the board opens.
-        const [loadedTasks, usersResponse] = await Promise.all([getIssues(), getUsers()]);
+        const [loadedTasks, usersResponse] = await Promise.all([
+          getIssues(),
+          getUsers(),
+        ]);
         setTasks(loadedTasks);
-        setMembers(usersResponse.data.map((user) => ({
-          id: user._id,
-          name: user.fullName,
-          role: user.role,
-          avatar: user.avatar,
-        })));
+        setMembers(
+          usersResponse.data.map((user) => ({
+            id: user._id,
+            name: user.fullName,
+            role: user.role,
+            avatar: user.avatar,
+          })),
+        );
       } catch (requestError) {
         setError(requestError.message);
-        if (requestError.message.includes("Not authorized")) navigate("/login", { replace: true });
+        if (requestError.message.includes("Not authorized"))
+          navigate("/login", { replace: true });
       } finally {
         setIsLoading(false);
       }
@@ -75,7 +80,11 @@ const BoardPage = ({
 
     try {
       const updatedTask = await updateIssueStatus(taskToMove.id, nextStatus);
-      setTasks((currentTasks) => currentTasks.map((task) => task.id === updatedTask.id ? updatedTask : task));
+      setTasks((currentTasks) =>
+        currentTasks.map((task) =>
+          task.id === updatedTask.id ? updatedTask : task,
+        ),
+      );
     } catch (requestError) {
       setError(requestError.message);
     }
@@ -84,7 +93,11 @@ const BoardPage = ({
   const handleUpdateTaskStatus = async (taskId, newStatus) => {
     try {
       const updatedTask = await updateIssueStatus(taskId, newStatus);
-      setTasks((currentTasks) => currentTasks.map((task) => task.id === updatedTask.id ? updatedTask : task));
+      setTasks((currentTasks) =>
+        currentTasks.map((task) =>
+          task.id === updatedTask.id ? updatedTask : task,
+        ),
+      );
       setSelectedTask(updatedTask);
     } catch (requestError) {
       setError(requestError.message);
@@ -94,7 +107,9 @@ const BoardPage = ({
   const handleDeleteTask = async (taskId) => {
     try {
       await deleteIssue(taskId);
-      setTasks((currentTasks) => currentTasks.filter((task) => task.id !== taskId));
+      setTasks((currentTasks) =>
+        currentTasks.filter((task) => task.id !== taskId),
+      );
       setSelectedTask(null);
     } catch (requestError) {
       setError(requestError.message);
@@ -141,8 +156,14 @@ const BoardPage = ({
           </div>
         </div>
       </div>
-      {error && <p className="rounded-xl bg-red-500/10 px-4 py-3 text-sm text-red-600">{error}</p>}
-      {isLoading && <p className="text-sm text-on-surface-variant">Loading issues...</p>}
+      {error && (
+        <p className="rounded-xl bg-red-500/10 px-4 py-3 text-sm text-red-600">
+          {error}
+        </p>
+      )}
+      {isLoading && (
+        <p className="text-sm text-on-surface-variant">Loading issues...</p>
+      )}
 
       {/* Filter Tabs & Toolbar */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 p-2 rounded-2xl bg-surface-container-low border border-outline-variant/60">
