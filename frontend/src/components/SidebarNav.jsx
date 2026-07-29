@@ -1,18 +1,26 @@
-import React from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   CheckSquare,
   BarChart3,
   Settings,
-  LogIn,
-  UserPlus,
+  LogOut,
   Shield,
   FolderKanban,
 } from "lucide-react";
+import { logout } from "../services/auth";
 
-const SidebarNav = ({ isOpen, onClose }) => {
+const SidebarNav = ({ isOpen, onClose, user }) => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const displayName = user?.fullName || user?.name || "User";
+  const displayDetail = user?.role || user?.email || "Member";
+  const initials = displayName
+    .split(" ")
+    .map((name) => name[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
 
   const navItems = [
     { label: "Kanban Board", path: "/", icon: LayoutDashboard },
@@ -21,10 +29,11 @@ const SidebarNav = ({ isOpen, onClose }) => {
     { label: "Settings", path: "/settings", icon: Settings },
   ];
 
-  const authItems = [
-    { label: "Login", path: "/login", icon: LogIn },
-    { label: "Sign Up", path: "/signup", icon: UserPlus },
-  ];
+  const handleLogout = async () => {
+    await logout();
+    onClose();
+    navigate("/login", { replace: true });
+  };
 
   return (
     <>
@@ -65,7 +74,7 @@ const SidebarNav = ({ isOpen, onClose }) => {
             <div className="flex items-center gap-2">
               <div className="w-2.5 h-2.5 rounded-full bg-emerald-500"></div>
               <span className="text-xs font-semibold text-on-surface">
-                Engineering Team
+                {user?.workspaceName || "Workspace"}
               </span>
             </div>
             <span className="material-symbols-outlined text-sm text-on-surface-variant">
@@ -105,45 +114,37 @@ const SidebarNav = ({ isOpen, onClose }) => {
           <div className="px-3 mt-6 mb-2 text-[11px] font-bold uppercase tracking-wider text-outline">
             Authentication
           </div>
-          {authItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = location.pathname === item.path;
-            return (
-              <Link
-                key={item.path}
-                to={item.path}
-                onClick={onClose}
-                className={`
-                  flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all
-                  ${
-                    isActive
-                      ? "bg-primary text-on-primary shadow-sm shadow-primary/20"
-                      : "text-on-surface-variant hover:bg-surface-container hover:text-on-surface"
-                  }
-                `}
-              >
-                <Icon className="w-4 h-4" />
-                <span>{item.label}</span>
-              </Link>
-            );
-          })}
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-on-surface-variant transition-all hover:bg-surface-container hover:text-on-surface"
+          >
+            <LogOut className="w-4 h-4" />
+            <span>Log Out</span>
+          </button>
         </div>
 
         {/* User Footer Profile */}
         <div className="pt-4 border-t border-outline-variant/60">
           <div className="p-2.5 rounded-xl bg-surface-container/60 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <img
-                src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80"
-                alt="User Avatar"
-                className="w-8 h-8 rounded-full object-cover ring-2 ring-primary/20"
-              />
+              {user?.avatar ? (
+                <img
+                  src={user.avatar}
+                  alt={`${displayName}'s avatar`}
+                  className="w-8 h-8 rounded-full object-cover ring-2 ring-primary/20"
+                />
+              ) : (
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-xs font-bold text-on-primary ring-2 ring-primary/20">
+                  {initials}
+                </div>
+              )}
               <div className="text-left">
                 <p className="text-xs font-semibold text-on-surface leading-tight">
-                  Alex Rivera
+                  {displayName}
                 </p>
                 <p className="text-[11px] text-on-surface-variant">
-                  Lead Product Engineer
+                  {displayDetail}
                 </p>
               </div>
             </div>

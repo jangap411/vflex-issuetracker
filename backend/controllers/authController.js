@@ -20,7 +20,11 @@ const generateToken = (userId) => {
 const registerUser = async (req, res, next) => {
   try {
     //get user details from request body
-    const { fullName, email, password } = req.body;
+    const { fullName, email, password, workspaceName } = req.body;
+
+    if (!workspaceName?.trim()) {
+      return res.status(400).json({ message: "Workspace name is required" });
+    }
     //check if user already exists
     const userExists = await User.findOne({ email });
 
@@ -33,6 +37,7 @@ const registerUser = async (req, res, next) => {
       fullName,
       email,
       password,
+      workspaceName,
     });
 
     //generate token
@@ -46,6 +51,7 @@ const registerUser = async (req, res, next) => {
         id: user._id,
         fullName: user.fullName,
         email: user.email,
+        workspaceName: user.workspaceName,
       },
     });
   } catch (error) {
@@ -147,4 +153,14 @@ const logout = async (req, res) => {
   });
 };
 
-module.exports = { registerUser, loginUser, getCurrentUser, logout };
+const getUsers = async (req, res, next) => {
+  try {
+    // The create form needs a small, safe list of possible assignees.
+    const users = await User.find({ isActive: true }).select("fullName email avatar role");
+    res.status(200).json({ success: true, data: users });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = { registerUser, loginUser, getCurrentUser, logout, getUsers };

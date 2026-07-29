@@ -10,13 +10,14 @@ const issueSchema = new mongoose.Schema(
     },
     description: {
       type: String,
-      required: [true, "Description is required"],
       trim: true,
+      default: "",
     },
     status: {
       type: String,
-      enum: ["TO DO", "IN PROGRESS", "DONE"],
-      default: "TO DO",
+      // These values match the Kanban columns used by the frontend.
+      enum: ["todo", "in_progress", "in_review", "done"],
+      default: "todo",
     },
     priority: {
       type: String,
@@ -61,20 +62,15 @@ const issueSchema = new mongoose.Schema(
   },
 );
 
-// update completedAt when status is changed to "Closed"
-issueSchema.pre("save", function (next) {
-  if (this.status === "DONE" && !this.completedAt) {
+issueSchema.pre("save", function () {
+  if (this.status === "done" && !this.completedAt)
     this.completedAt = new Date();
-  }
-
-  if (this.status !== "DONE") {
-    this.completedAt = null;
-  }
+  if (this.status !== "done") this.completedAt = null;
 });
 
 // virtual: isOverdue
 issueSchema.virtual("isOverdue").get(function () {
-  return this.dueDate && this.status !== "DONE" && this.dueDate < new Date();
+  return this.dueDate && this.status !== "done" && this.dueDate < new Date();
 });
 
 const Issue = mongoose.model("Issue", issueSchema);

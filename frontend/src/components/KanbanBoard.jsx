@@ -1,4 +1,3 @@
-import React from "react";
 import TaskCard from "./TaskCard";
 import { Plus, MoreHorizontal } from "lucide-react";
 
@@ -51,6 +50,7 @@ const KanbanBoard = ({
                 <h2 className="font-bold text-sm text-on-surface uppercase tracking-wide">
                   {column.title}
                 </h2>
+
                 <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-surface-container text-on-surface-variant">
                   {colTasks.length}
                 </span>

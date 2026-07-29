@@ -19,7 +19,6 @@ router.use(protect);
 
 // get all issues and create issue
 router.route("/").get(getAllIssues).post(createIssue);
-router.route("/:id").get(getIssueById).put(updateIssue).delete(deleteIssue);
 //dashboard
 router.route("/dashboard").get(getDashboardSummary);
 
@@ -28,5 +27,6 @@ router.route("/status/:status").get(getIssuesByStatus);
 
 router.route("/:id/status").patch(updateIssueStatus);
 router.route("/:id/assign").patch(assignIssue);
+router.route("/:id").get(getIssueById).put(updateIssue).delete(deleteIssue);
 
 module.exports = router;

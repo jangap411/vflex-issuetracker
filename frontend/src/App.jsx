@@ -1,18 +1,23 @@
-import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { useState, useEffect } from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import SidebarNav from "./components/SidebarNav";
 import TopAppBar from "./components/TopAppBar";
 import BoardPage from "./pages/BoardPage";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
+import { getSession } from "./services/auth";
 
 const App = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [defaultColumnForCreate, setDefaultColumnForCreate] =
-    useState("backlog");
+  const [defaultColumnForCreate, setDefaultColumnForCreate] = useState("todo");
 
   useEffect(() => {
     if (isDarkMode) {
@@ -24,12 +29,12 @@ const App = () => {
     }
   }, [isDarkMode]);
 
-  const handleOpenCreateTask = (columnId = "backlog") => {
-    setDefaultColumnForCreate(
-      typeof columnId === "string" ? columnId : "backlog",
-    );
+  const handleOpenCreateTask = (columnId = "todo") => {
+    setDefaultColumnForCreate(typeof columnId === "string" ? columnId : "todo");
     setIsCreateModalOpen(true);
   };
+
+  const session = getSession();
 
   return (
     <Router>
@@ -42,54 +47,81 @@ const App = () => {
         <Route
           path="*"
           element={
-            <div className="min-h-screen bg-surface text-on-surface flex">
-              {/* Sidebar Navigation */}
-              <SidebarNav
-                isOpen={isSidebarOpen}
-                onClose={() => setIsSidebarOpen(false)}
-              />
-
-              {/* Main Content Area */}
-              <div className="flex-1 flex flex-col lg:pl-64 min-w-0">
-                <TopAppBar
-                  searchQuery={searchQuery}
-                  setSearchQuery={setSearchQuery}
-                  onOpenCreateTask={handleOpenCreateTask}
-                  onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
-                  isDarkMode={isDarkMode}
-                  setIsDarkMode={setIsDarkMode}
+            session ? (
+              <div className="min-h-screen bg-surface text-on-surface flex">
+                {/* Sidebar Navigation */}
+                <SidebarNav
+                  isOpen={isSidebarOpen}
+                  onClose={() => setIsSidebarOpen(false)}
+                  user={session.user}
                 />
 
-                <main className="flex-1 overflow-x-hidden">
-                  <Routes>
-                    <Route
-                      path="/"
-                      element={
-                        <BoardPage
-                          searchQuery={searchQuery}
-                          onOpenCreateTask={handleOpenCreateTask}
-                          isCreateModalOpen={isCreateModalOpen}
-                          setIsCreateModalOpen={setIsCreateModalOpen}
-                          defaultColumnForCreate={defaultColumnForCreate}
-                        />
-                      }
-                    />
-                    <Route
-                      path="/tasks"
-                      element={
-                        <BoardPage
-                          searchQuery={searchQuery}
-                          onOpenCreateTask={handleOpenCreateTask}
-                          isCreateModalOpen={isCreateModalOpen}
-                          setIsCreateModalOpen={setIsCreateModalOpen}
-                          defaultColumnForCreate={defaultColumnForCreate}
-                        />
-                      }
-                    />
-                  </Routes>
-                </main>
+                {/* Main Content Area */}
+                <div className="flex-1 flex flex-col lg:pl-64 min-w-0">
+                  <TopAppBar
+                    searchQuery={searchQuery}
+                    setSearchQuery={setSearchQuery}
+                    onOpenCreateTask={handleOpenCreateTask}
+                    onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+                    isDarkMode={isDarkMode}
+                    setIsDarkMode={setIsDarkMode}
+                  />
+
+                  <main className="flex-1 overflow-x-hidden">
+                    <Routes>
+                      <Route
+                        path="/"
+                        element={
+                          <BoardPage
+                            searchQuery={searchQuery}
+                            onOpenCreateTask={handleOpenCreateTask}
+                            isCreateModalOpen={isCreateModalOpen}
+                            setIsCreateModalOpen={setIsCreateModalOpen}
+                            defaultColumnForCreate={defaultColumnForCreate}
+                          />
+                        }
+                      />
+                      <Route
+                        path="/tasks"
+                        element={
+                          <BoardPage
+                            searchQuery={searchQuery}
+                            onOpenCreateTask={handleOpenCreateTask}
+                            isCreateModalOpen={isCreateModalOpen}
+                            setIsCreateModalOpen={setIsCreateModalOpen}
+                            defaultColumnForCreate={defaultColumnForCreate}
+                          />
+                        }
+                      />
+                      <Route
+                        path="/analytics"
+                        element={
+                          <div className="flex flex-col items-center text-center mb-8">
+                            <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-on-primary mb-3"></div>
+                            <h1 className="text-2xl font-bold text-on-surface">
+                              Analytics coming soon
+                            </h1>
+                          </div>
+                        }
+                      />
+                      <Route
+                        path="/settings"
+                        element={
+                          <div className="flex flex-col items-center text-center mb-8">
+                            <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-on-primary mb-3"></div>
+                            <h1 className="text-2xl font-bold text-on-surface">
+                              Settings coming soon
+                            </h1>
+                          </div>
+                        }
+                      />
+                    </Routes>
+                  </main>
+                </div>
               </div>
-            </div>
+            ) : (
+              <Navigate to="/login" replace />
+            )
           }
         />
       </Routes>

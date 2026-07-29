@@ -1,4 +1,3 @@
-import React from "react";
 import { Menu, Search, Plus, Bell, Sun, Moon, Sparkles } from "lucide-react";
 
 const TopAppBar = ({
