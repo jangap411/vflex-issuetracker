@@ -1,17 +1,12 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { login } from "../services/auth";
-import {
-  FolderKanban,
-  Lock,
-  Mail,
-  ArrowRight,
-} from "lucide-react";
+import { FolderKanban, Lock, Mail, ArrowRight } from "lucide-react";
 
 const LoginPage = () => {
   const navigate = useNavigate();
-  const [email, setEmail] = useState("lead@issueboard.dev");
-  const [password, setPassword] = useState("password123");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -48,7 +43,11 @@ const LoginPage = () => {
         </div>
         {/* Login Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
-          {error && <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-600">{error}</p>}
+          {error && (
+            <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-600">
+              {error}
+            </p>
+          )}
           {/* Email */}
           <div>
             <label className="block text-xs font-semibold text-on-surface uppercase tracking-wider mb-1.5">

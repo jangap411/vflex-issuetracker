@@ -12,10 +12,10 @@ import {
 
 const SignupPage = () => {
   const navigate = useNavigate();
-  const [fullName, setFullName] = useState("Alex Rivera");
-  const [email, setEmail] = useState("alex@issueboard.dev");
-  const [password, setPassword] = useState("password123");
-  const [teamName, setTeamName] = useState("Engineering Team");
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [teamName, setTeamName] = useState("");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -56,7 +56,11 @@ const SignupPage = () => {
 
         {/* Signup Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
-          {error && <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-600">{error}</p>}
+          {error && (
+            <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-600">
+              {error}
+            </p>
+          )}
           {/* Full Name */}
           <div>
             <label className="block text-xs font-semibold text-on-surface uppercase tracking-wider mb-1.5">
