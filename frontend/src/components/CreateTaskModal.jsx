@@ -1,56 +1,53 @@
-import React, { useState } from "react";
-import { X, Calendar, User, Tag, AlertCircle } from "lucide-react";
-import { teamMembers } from "../mockData";
+import { useState } from "react";
+import { X } from "lucide-react";
 
 const CreateTaskModal = ({
   isOpen,
   onClose,
   onCreateTask,
   defaultStatus = "backlog",
+  members,
 }) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [status, setStatus] = useState(defaultStatus);
   const [priority, setPriority] = useState("Medium");
-  const [assigneeId, setAssigneeId] = useState("1");
+  const [assigneeId, setAssigneeId] = useState("");
   const [tagsInput, setTagsInput] = useState("Frontend, UI/UX");
   const [dueDate, setDueDate] = useState("2026-08-10");
+  const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!title.trim()) return;
-
-    const assigneeObj =
-      teamMembers.find((m) => m.id === assigneeId) || teamMembers[0];
+    setError("");
+    setIsSubmitting(true);
     const tags = tagsInput
       .split(",")
       .map((t) => t.trim())
       .filter(Boolean);
 
-    const newTask = {
-      id: `ISSUE-${Math.floor(100 + Math.random() * 900)}`,
+    const newIssue = {
       title,
       description,
       status,
       priority,
-      tags: tags.length ? tags : ["Task"],
-      assignee: {
-        name: assigneeObj.name,
-        avatar: assigneeObj.avatar,
-        initials: assigneeObj.name
-          .split(" ")
-          .map((n) => n[0])
-          .join(""),
-      },
-      commentsCount: 0,
-      attachmentsCount: 0,
+      labels: tags,
+      assignedTo: assigneeId || null,
       dueDate,
     };
-
-    onCreateTask(newTask);
-    onClose();
+    try {
+      // Wait for the API so the modal stays open if the request fails.
+      await onCreateTask(newIssue);
+      onClose();
+    } catch (requestError) {
+      setError(requestError.message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -77,6 +74,7 @@ const CreateTaskModal = ({
           onSubmit={handleSubmit}
           className="p-6 space-y-4 overflow-y-auto flex-1 text-sm"
         >
+          {error && <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-600">{error}</p>}
           {/* Title */}
           <div>
             <label className="block text-xs font-semibold text-on-surface mb-1.5 uppercase tracking-wider">
@@ -151,7 +149,8 @@ const CreateTaskModal = ({
                 onChange={(e) => setAssigneeId(e.target.value)}
                 className="w-full px-4 py-2.5 rounded-xl bg-surface-container/60 border border-outline-variant/60 focus:outline-none focus:border-primary text-on-surface"
               >
-                {teamMembers.map((member) => (
+                <option value="">Unassigned</option>
+                {members.map((member) => (
                   <option key={member.id} value={member.id}>
                     {member.name} ({member.role})
                   </option>
@@ -197,9 +196,10 @@ const CreateTaskModal = ({
             </button>
             <button
               type="submit"
+              disabled={isSubmitting}
               className="px-6 py-2 text-sm font-semibold text-on-primary bg-primary hover:bg-primary/90 rounded-xl shadow-md shadow-primary/20 transition-all"
             >
-              Create Issue
+              {isSubmitting ? "Creating..." : "Create Issue"}
             </button>
           </div>
         </form>

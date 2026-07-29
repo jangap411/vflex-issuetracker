@@ -10,7 +10,6 @@ const getAllIssues = async (req, res, next) => {
     const issues = await Issue.find()
       .populate("createdBy", "fullName email avatar")
       .populate("assignedTo", "fullName email avatar")
-      .populate("labels", "name color")
       .sort({ createdAt: -1 });
 
     res.status(200).json({
@@ -32,8 +31,7 @@ const getIssueById = async (req, res, next) => {
   try {
     const issue = await Issue.findById(req.params.id)
       .populate("createdBy", "fullName email avatar")
-      .populate("assignedTo", "fullName email avatar")
-      .populate("labels", "name color");
+      .populate("assignedTo", "fullName email avatar");
 
     if (!issue) {
       return res
@@ -80,8 +78,7 @@ const createIssue = async (req, res, next) => {
 
     const populatedIssue = await Issue.findById(issue._id)
       .populate("createdBy", "fullName email avatar")
-      .populate("assignedTo", "fullName email avatar")
-      .populate("labels", "name color");
+      .populate("assignedTo", "fullName email avatar");
     res.status(201).json({
       success: true,
       message: "Issue created successfully",
@@ -109,8 +106,7 @@ const updateIssue = async (req, res, next) => {
     await issue.save();
     const updatedIssue = await Issue.findById(issue._id)
       .populate("createdBy", "fullName email avatar")
-      .populate("assignee", "fullName email avatar")
-      .populate("labels", "name color");
+      .populate("assignedTo", "fullName email avatar");
     res.status(200).json({
       success: true,
       message: "Issue updated successfully",
@@ -178,7 +174,7 @@ const getIssuesByStatus = async (req, res, next) => {
   try {
     const issues = await Issue.find({ status: req.params.status })
       .populate("createdBy", "fullName")
-      .populate("assignee", "fullName")
+      .populate("assignedTo", "fullName")
       .sort({ createdAt: -1 });
     res.status(200).json({ success: true, count: issues.length, data: issues });
   } catch (error) {
@@ -193,7 +189,7 @@ const getIssuesByStatus = async (req, res, next) => {
  */
 const assignIssue = async (req, res, next) => {
   try {
-    const { assignee } = req.body;
+    const { assignedTo } = req.body;
 
     const issue = await Issue.findById(req.params.id);
     if (!issue) {
@@ -201,11 +197,11 @@ const assignIssue = async (req, res, next) => {
         .status(404)
         .json({ success: false, message: "Issue not found" });
     }
-    issue.assignee = assignee;
+    issue.assignedTo = assignedTo;
     await issue.save();
     const updatedIssue = await Issue.findById(issue._id)
       .populate("createdBy", "fullName email avatar")
-      .populate("assignee", "fullName email avatar");
+      .populate("assignedTo", "fullName email avatar");
     res.status(200).json({
       success: true,
       message: "Issue assigned successfully",
@@ -224,16 +220,16 @@ const assignIssue = async (req, res, next) => {
 const getDashboardSummary = async (req, res, next) => {
   try {
     const total = await Issue.countDocuments();
-    const todo = await Issue.countDocuments({ status: "TODO" });
+    const todo = await Issue.countDocuments({ status: "backlog" });
     const inProgress = await Issue.countDocuments({
-      status: "IN_PROGRESS",
+      status: "in_progress",
     });
-    const done = await Issue.countDocuments({ status: "DONE" });
-    const highPriority = await Issue.countDocuments({ priority: "HIGH" });
-    const critical = await Issue.countDocuments({ priority: "CRITICAL" });
+    const inReview = await Issue.countDocuments({ status: "in_review" });
+    const done = await Issue.countDocuments({ status: "done" });
+    const highPriority = await Issue.countDocuments({ priority: "High" });
     res.status(200).json({
       success: true,
-      data: { total, todo, inProgress, done, highPriority, critical },
+      data: { total, todo, inProgress, inReview, done, highPriority },
     });
   } catch (error) {
     next(error);

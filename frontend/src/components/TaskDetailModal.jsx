@@ -1,13 +1,8 @@
-import React from "react";
 import {
   X,
-  Calendar,
-  User,
-  Tag,
   Clock,
   MessageSquare,
   Trash2,
-  ArrowRight,
 } from "lucide-react";
 
 const TaskDetailModal = ({

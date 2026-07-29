@@ -1,9 +1,7 @@
-import React from "react";
 import {
   MessageSquare,
   Paperclip,
   Clock,
-  MoreVertical,
   ArrowRightLeft,
 } from "lucide-react";
 

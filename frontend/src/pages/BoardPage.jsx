@@ -1,16 +1,21 @@
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import KanbanBoard from "../components/KanbanBoard";
 import CreateTaskModal from "../components/CreateTaskModal";
 import TaskDetailModal from "../components/TaskDetailModal";
-import { initialColumns, initialTasks } from "../mockData";
+import { initialColumns } from "../mockData";
+import { getUsers } from "../services/auth";
 import {
-  Filter,
+  createIssue,
+  deleteIssue,
+  getIssues,
+  updateIssueStatus,
+} from "../services/issues";
+import {
   SlidersHorizontal,
   Layers,
   CheckCircle2,
   AlertTriangle,
-  ListFilter,
-  Grid2X2,
 } from "lucide-react";
 
 const BoardPage = ({
@@ -20,50 +25,80 @@ const BoardPage = ({
   setIsCreateModalOpen,
   defaultColumnForCreate,
 }) => {
+  const navigate = useNavigate();
   const [columns] = useState(initialColumns);
-  const [tasks, setTasks] = useState(initialTasks);
+  const [tasks, setTasks] = useState([]);
+  const [members, setMembers] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
   const [activeFilter, setActiveFilter] = useState("all"); // all, my_issues, high_priority
   const [selectedTask, setSelectedTask] = useState(null);
 
+  useEffect(() => {
+    const loadBoard = async () => {
+      try {
+        // Load tasks and selectable assignees together when the board opens.
+        const [loadedTasks, usersResponse] = await Promise.all([getIssues(), getUsers()]);
+        setTasks(loadedTasks);
+        setMembers(usersResponse.data.map((user) => ({
+          id: user._id,
+          name: user.fullName,
+          role: user.role,
+          avatar: user.avatar,
+        })));
+      } catch (requestError) {
+        setError(requestError.message);
+        if (requestError.message.includes("Not authorized")) navigate("/login", { replace: true });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadBoard();
+  }, [navigate]);
+
   // Statistics
   const totalCount = tasks.length;
-  const inProgressCount = tasks.filter(
-    (t) => t.status === "in_progress",
-  ).length;
-  const inReviewCount = tasks.filter((t) => t.status === "in_review").length;
   const doneCount = tasks.filter((t) => t.status === "done").length;
   const highPriorityCount = tasks.filter(
     (t) => t.priority.toLowerCase() === "high",
   ).length;
 
-  const handleCreateTask = (newTask) => {
-    setTasks([newTask, ...tasks]);
+  const handleCreateTask = async (newIssue) => {
+    const createdTask = await createIssue(newIssue);
+    setTasks((currentTasks) => [createdTask, ...currentTasks]);
   };
 
-  const handleMoveTask = (taskToMove) => {
+  const handleMoveTask = async (taskToMove) => {
     const statusOrder = ["backlog", "in_progress", "in_review", "done"];
     const currentIndex = statusOrder.indexOf(taskToMove.status);
     const nextStatus = statusOrder[(currentIndex + 1) % statusOrder.length];
 
-    setTasks(
-      tasks.map((t) =>
-        t.id === taskToMove.id ? { ...t, status: nextStatus } : t,
-      ),
-    );
-  };
-
-  const handleUpdateTaskStatus = (taskId, newStatus) => {
-    setTasks(
-      tasks.map((t) => (t.id === taskId ? { ...t, status: newStatus } : t)),
-    );
-    if (selectedTask && selectedTask.id === taskId) {
-      setSelectedTask({ ...selectedTask, status: newStatus });
+    try {
+      const updatedTask = await updateIssueStatus(taskToMove.id, nextStatus);
+      setTasks((currentTasks) => currentTasks.map((task) => task.id === updatedTask.id ? updatedTask : task));
+    } catch (requestError) {
+      setError(requestError.message);
     }
   };
 
-  const handleDeleteTask = (taskId) => {
-    setTasks(tasks.filter((t) => t.id !== taskId));
-    setSelectedTask(null);
+  const handleUpdateTaskStatus = async (taskId, newStatus) => {
+    try {
+      const updatedTask = await updateIssueStatus(taskId, newStatus);
+      setTasks((currentTasks) => currentTasks.map((task) => task.id === updatedTask.id ? updatedTask : task));
+      setSelectedTask(updatedTask);
+    } catch (requestError) {
+      setError(requestError.message);
+    }
+  };
+
+  const handleDeleteTask = async (taskId) => {
+    try {
+      await deleteIssue(taskId);
+      setTasks((currentTasks) => currentTasks.filter((task) => task.id !== taskId));
+      setSelectedTask(null);
+    } catch (requestError) {
+      setError(requestError.message);
+    }
   };
 
   return (
@@ -106,6 +141,8 @@ const BoardPage = ({
           </div>
         </div>
       </div>
+      {error && <p className="rounded-xl bg-red-500/10 px-4 py-3 text-sm text-red-600">{error}</p>}
+      {isLoading && <p className="text-sm text-on-surface-variant">Loading issues...</p>}
 
       {/* Filter Tabs & Toolbar */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 p-2 rounded-2xl bg-surface-container-low border border-outline-variant/60">
@@ -165,10 +202,12 @@ const BoardPage = ({
 
       {/* Create Task Modal */}
       <CreateTaskModal
+        key={defaultColumnForCreate}
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
         onCreateTask={handleCreateTask}
         defaultStatus={defaultColumnForCreate}
+        members={members}
       />
 
       {/* Task Detail Modal */}

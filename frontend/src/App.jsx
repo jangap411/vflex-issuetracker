@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import SidebarNav from "./components/SidebarNav";
 import TopAppBar from "./components/TopAppBar";
 import BoardPage from "./pages/BoardPage";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
+import { getSession } from "./services/auth";
 
 const App = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -42,6 +43,7 @@ const App = () => {
         <Route
           path="*"
           element={
+            getSession() ? (
             <div className="min-h-screen bg-surface text-on-surface flex">
               {/* Sidebar Navigation */}
               <SidebarNav
@@ -90,6 +92,9 @@ const App = () => {
                 </main>
               </div>
             </div>
+            ) : (
+              <Navigate to="/login" replace />
+            )
           }
         />
       </Routes>

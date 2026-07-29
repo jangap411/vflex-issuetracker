@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { register } from "../services/auth";
 import {
   FolderKanban,
   User,
@@ -15,10 +16,21 @@ const SignupPage = () => {
   const [email, setEmail] = useState("alex@issueboard.dev");
   const [password, setPassword] = useState("password123");
   const [teamName, setTeamName] = useState("Engineering Team");
+  const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    navigate("/");
+    setError("");
+    setIsSubmitting(true);
+    try {
+      await register({ fullName, email, password });
+      navigate("/");
+    } catch (requestError) {
+      setError(requestError.message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -44,6 +56,7 @@ const SignupPage = () => {
 
         {/* Signup Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
+          {error && <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-600">{error}</p>}
           {/* Full Name */}
           <div>
             <label className="block text-xs font-semibold text-on-surface uppercase tracking-wider mb-1.5">
@@ -120,9 +133,10 @@ const SignupPage = () => {
           {/* Signup Button */}
           <button
             type="submit"
+            disabled={isSubmitting}
             className="w-full py-3 px-4 bg-primary hover:bg-primary/90 text-on-primary font-semibold text-sm rounded-xl shadow-md shadow-primary/20 flex items-center justify-center gap-2 transition-all hover:scale-[1.01]"
           >
-            <span>Create Workspace</span>
+            <span>{isSubmitting ? "Creating..." : "Create Workspace"}</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </form>
