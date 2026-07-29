@@ -10,6 +10,12 @@ const userSchema = new mongoose.Schema(
       trim: true,
       maxlength: [50, "Full name cannot exceed 50 characters"],
     },
+    workspaceName: {
+      type: String,
+      trim: true,
+      maxlength: [80, "Workspace name cannot exceed 80 characters"],
+      default: "My Workspace",
+    },
     email: {
       type: String,
       required: [true, "Email is required"],

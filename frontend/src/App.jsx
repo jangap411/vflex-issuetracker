@@ -96,17 +96,23 @@ const App = () => {
                       <Route
                         path="/analytics"
                         element={
-                          <h1 className="text-2xl font-bold text-on-surface">
-                            Analytics page coming soon
-                          </h1>
+                          <div className="flex flex-col items-center text-center mb-8">
+                            <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-on-primary mb-3"></div>
+                            <h1 className="text-2xl font-bold text-on-surface">
+                              Analytics coming soon
+                            </h1>
+                          </div>
                         }
                       />
                       <Route
                         path="/settings"
                         element={
-                          <h1 className="text-2xl font-bold text-on-surface">
-                            Settings page coming soon
-                          </h1>
+                          <div className="flex flex-col items-center text-center mb-8">
+                            <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-on-primary mb-3"></div>
+                            <h1 className="text-2xl font-bold text-on-surface">
+                              Settings coming soon
+                            </h1>
+                          </div>
                         }
                       />
                     </Routes>

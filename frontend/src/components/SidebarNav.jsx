@@ -74,7 +74,7 @@ const SidebarNav = ({ isOpen, onClose, user }) => {
             <div className="flex items-center gap-2">
               <div className="w-2.5 h-2.5 rounded-full bg-emerald-500"></div>
               <span className="text-xs font-semibold text-on-surface">
-                Engineering Team
+                {user?.workspaceName || "Workspace"}
               </span>
             </div>
             <span className="material-symbols-outlined text-sm text-on-surface-variant">

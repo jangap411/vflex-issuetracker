@@ -24,7 +24,7 @@ const SignupPage = () => {
     setError("");
     setIsSubmitting(true);
     try {
-      await register({ fullName, email, password });
+      await register({ fullName, email, password, workspaceName: teamName });
       navigate("/");
     } catch (requestError) {
       setError(requestError.message);
