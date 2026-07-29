@@ -220,7 +220,7 @@ const assignIssue = async (req, res, next) => {
 const getDashboardSummary = async (req, res, next) => {
   try {
     const total = await Issue.countDocuments();
-    const todo = await Issue.countDocuments({ status: "backlog" });
+    const todo = await Issue.countDocuments({ status: "todo" });
     const inProgress = await Issue.countDocuments({
       status: "in_progress",
     });

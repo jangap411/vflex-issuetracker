@@ -16,8 +16,8 @@ const issueSchema = new mongoose.Schema(
     status: {
       type: String,
       // These values match the Kanban columns used by the frontend.
-      enum: ["backlog", "in_progress", "in_review", "done"],
-      default: "backlog",
+      enum: ["todo", "in_progress", "in_review", "done"],
+      default: "todo",
     },
     priority: {
       type: String,

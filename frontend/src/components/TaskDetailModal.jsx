@@ -72,7 +72,7 @@ const TaskDetailModal = ({
                 onChange={(e) => onUpdateStatus(task.id, e.target.value)}
                 className="mt-1 w-full bg-surface border border-outline-variant text-xs font-semibold rounded-lg px-2 py-1.5 text-on-surface"
               >
-                <option value="backlog">Backlog</option>
+                <option value="todo">To Do</option>
                 <option value="in_progress">In Progress</option>
                 <option value="in_review">In Review</option>
                 <option value="done">Done</option>

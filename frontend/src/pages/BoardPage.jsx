@@ -69,7 +69,7 @@ const BoardPage = ({
   };
 
   const handleMoveTask = async (taskToMove) => {
-    const statusOrder = ["backlog", "in_progress", "in_review", "done"];
+    const statusOrder = ["todo", "in_progress", "in_review", "done"];
     const currentIndex = statusOrder.indexOf(taskToMove.status);
     const nextStatus = statusOrder[(currentIndex + 1) % statusOrder.length];
 

@@ -5,7 +5,7 @@ const CreateTaskModal = ({
   isOpen,
   onClose,
   onCreateTask,
-  defaultStatus = "backlog",
+  defaultStatus = "todo",
   members,
 }) => {
   const [title, setTitle] = useState("");
@@ -115,7 +115,7 @@ const CreateTaskModal = ({
                 onChange={(e) => setStatus(e.target.value)}
                 className="w-full px-4 py-2.5 rounded-xl bg-surface-container/60 border border-outline-variant/60 focus:outline-none focus:border-primary text-on-surface"
               >
-                <option value="backlog">Backlog</option>
+                <option value="todo">To Do</option>
                 <option value="in_progress">In Progress</option>
                 <option value="in_review">In Review</option>
                 <option value="done">Done</option>

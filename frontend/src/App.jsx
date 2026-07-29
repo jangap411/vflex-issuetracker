@@ -13,7 +13,7 @@ const App = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [defaultColumnForCreate, setDefaultColumnForCreate] =
-    useState("backlog");
+    useState("todo");
 
   useEffect(() => {
     if (isDarkMode) {
@@ -25,9 +25,9 @@ const App = () => {
     }
   }, [isDarkMode]);
 
-  const handleOpenCreateTask = (columnId = "backlog") => {
+  const handleOpenCreateTask = (columnId = "todo") => {
     setDefaultColumnForCreate(
-      typeof columnId === "string" ? columnId : "backlog",
+      typeof columnId === "string" ? columnId : "todo",
     );
     setIsCreateModalOpen(true);
   };
