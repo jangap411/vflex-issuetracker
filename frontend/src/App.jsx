@@ -13,6 +13,7 @@ import SignupPage from "./pages/SignupPage";
 import { getSession } from "./services/auth";
 
 const App = () => {
+  const [session, setSession] = useState(() => getSession());
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -34,14 +35,30 @@ const App = () => {
     setIsCreateModalOpen(true);
   };
 
-  const session = getSession();
-
   return (
     <Router>
       <Routes>
         {/* Auth Pages without App Shell */}
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/signup" element={<SignupPage />} />
+        <Route
+          path="/login"
+          element={
+            session ? (
+              <Navigate to="/" replace />
+            ) : (
+              <LoginPage onAuthenticated={setSession} />
+            )
+          }
+        />
+        <Route
+          path="/signup"
+          element={
+            session ? (
+              <Navigate to="/" replace />
+            ) : (
+              <SignupPage onAuthenticated={setSession} />
+            )
+          }
+        />
 
         {/* Main Application Shell */}
         <Route

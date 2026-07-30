@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { login } from "../services/auth";
 import { FolderKanban, Lock, Mail, ArrowRight } from "lucide-react";
 
-const LoginPage = () => {
+const LoginPage = ({ onAuthenticated }) => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -16,7 +16,8 @@ const LoginPage = () => {
     setIsSubmitting(true);
     try {
       // Save the API token before sending the user to protected screens.
-      await login({ email, password });
+      const session = await login({ email, password });
+      onAuthenticated(session);
       navigate("/");
     } catch (requestError) {
       setError(requestError.message);

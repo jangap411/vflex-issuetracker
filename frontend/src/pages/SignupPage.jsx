@@ -10,7 +10,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 
-const SignupPage = () => {
+const SignupPage = ({ onAuthenticated }) => {
   const navigate = useNavigate();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -24,7 +24,8 @@ const SignupPage = () => {
     setError("");
     setIsSubmitting(true);
     try {
-      await register({ fullName, email, password, workspaceName: teamName });
+      const session = await register({ fullName, email, password, workspaceName: teamName });
+      onAuthenticated(session);
       navigate("/");
     } catch (requestError) {
       setError(requestError.message);
