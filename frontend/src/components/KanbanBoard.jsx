@@ -10,14 +10,23 @@ const KanbanBoard = ({
   onMoveTask,
   onOpenCreateTask,
 }) => {
-  // Filter tasks based on searchQuery and activeFilter
+  const normalizedQuery = searchQuery.trim().toLocaleLowerCase();
+
+  // Search across the core issue fields displayed in the board.
   const filteredTasks = tasks.filter((t) => {
+    const searchableFields = [
+      t.id,
+      t.title,
+      t.description,
+      t.assignee?.name,
+      t.priority,
+      t.status?.replaceAll("_", " "),
+      ...(t.tags || []),
+    ];
     const matchesSearch =
-      !searchQuery ||
-      t.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      t.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      t.tags.some((tag) =>
-        tag.toLowerCase().includes(searchQuery.toLowerCase()),
+      !normalizedQuery ||
+      searchableFields.some((field) =>
+        String(field || "").toLocaleLowerCase().includes(normalizedQuery),
       );
 
     if (!matchesSearch) return false;

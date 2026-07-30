@@ -1,4 +1,5 @@
-import { Menu, Search, Plus, Bell, Sun, Moon, Sparkles } from "lucide-react";
+import { useEffect, useRef } from "react";
+import { Menu, Search, Plus, Bell, Sun, Moon, Sparkles, X } from "lucide-react";
 
 const TopAppBar = ({
   searchQuery,
@@ -8,6 +9,27 @@ const TopAppBar = ({
   isDarkMode,
   setIsDarkMode,
 }) => {
+  const searchInputRef = useRef(null);
+
+  useEffect(() => {
+    const focusSearch = (event) => {
+      const target = event.target;
+      const isTyping =
+        target instanceof HTMLElement &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.isContentEditable);
+
+      if (event.key === "/" && !isTyping) {
+        event.preventDefault();
+        searchInputRef.current?.focus();
+      }
+    };
+
+    window.addEventListener("keydown", focusSearch);
+    return () => window.removeEventListener("keydown", focusSearch);
+  }, []);
+
   return (
     <header className="sticky top-0 z-20 h-16 bg-surface/80 backdrop-blur-md border-b border-outline-variant px-4 lg:px-8 flex items-center justify-between gap-4">
       <div className="flex items-center gap-3 flex-1 max-w-xl">
@@ -24,12 +46,25 @@ const TopAppBar = ({
         <div className="relative w-full">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-outline" />
           <input
+            ref={searchInputRef}
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search issues by title, tag, or assignee (Press '/' to focus)..."
-            className="w-full pl-10 pr-4 py-2 text-sm rounded-xl bg-surface-container/60 border border-outline-variant/60 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 text-on-surface placeholder:text-outline transition-all"
+            aria-label="Search issues"
+            className="w-full pl-10 pr-10 py-2 text-sm rounded-xl bg-surface-container/60 border border-outline-variant/60 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 text-on-surface placeholder:text-outline transition-all"
           />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => setSearchQuery("")}
+              className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg p-1 text-outline hover:bg-surface-container hover:text-on-surface"
+              aria-label="Clear issue search"
+              title="Clear search"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
         </div>
       </div>
 
