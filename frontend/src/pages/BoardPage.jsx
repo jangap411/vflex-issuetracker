@@ -17,6 +17,14 @@ import {
   AlertTriangle,
 } from "lucide-react";
 
+// columns
+const initialColumns = [
+  { id: "todo", title: "To Do", color: "border-slate-300" },
+  { id: "in_progress", title: "In Progress", color: "border-blue-500" },
+  { id: "in_review", title: "In Review", color: "border-purple-500" },
+  { id: "done", title: "Done", color: "border-emerald-500" },
+];
+
 const BoardPage = ({
   searchQuery,
   onOpenCreateTask,
