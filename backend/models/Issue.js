@@ -55,6 +55,25 @@ const issueSchema = new mongoose.Schema(
         },
       },
     ],
+    comments: [
+      {
+        body: {
+          type: String,
+          required: true,
+          trim: true,
+          maxlength: [2000, "Comment cannot exceed 2000 characters"],
+        },
+        author: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+          required: true,
+        },
+        createdAt: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
   },
   {
     timestamps: true,

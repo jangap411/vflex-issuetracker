@@ -10,6 +10,7 @@ const getAllIssues = async (req, res, next) => {
     const issues = await Issue.find()
       .populate("createdBy", "fullName email avatar")
       .populate("assignedTo", "fullName email avatar")
+      .populate("comments.author", "fullName avatar")
       .sort({ createdAt: -1 });
 
     res.status(200).json({
@@ -31,7 +32,8 @@ const getIssueById = async (req, res, next) => {
   try {
     const issue = await Issue.findById(req.params.id)
       .populate("createdBy", "fullName email avatar")
-      .populate("assignedTo", "fullName email avatar");
+      .populate("assignedTo", "fullName email avatar")
+      .populate("comments.author", "fullName avatar");
 
     if (!issue) {
       return res
@@ -78,7 +80,8 @@ const createIssue = async (req, res, next) => {
 
     const populatedIssue = await Issue.findById(issue._id)
       .populate("createdBy", "fullName email avatar")
-      .populate("assignedTo", "fullName email avatar");
+      .populate("assignedTo", "fullName email avatar")
+      .populate("comments.author", "fullName avatar");
     res.status(201).json({
       success: true,
       message: "Issue created successfully",
@@ -106,7 +109,8 @@ const updateIssue = async (req, res, next) => {
     await issue.save();
     const updatedIssue = await Issue.findById(issue._id)
       .populate("createdBy", "fullName email avatar")
-      .populate("assignedTo", "fullName email avatar");
+      .populate("assignedTo", "fullName email avatar")
+      .populate("comments.author", "fullName avatar");
     res.status(200).json({
       success: true,
       message: "Issue updated successfully",
@@ -133,10 +137,14 @@ const updateIssueStatus = async (req, res, next) => {
     }
     issue.status = status;
     await issue.save();
+    const populatedIssue = await Issue.findById(issue._id)
+      .populate("createdBy", "fullName email avatar")
+      .populate("assignedTo", "fullName email avatar")
+      .populate("comments.author", "fullName avatar");
     res.status(200).json({
       success: true,
       message: "Issue status updated successfully",
-      data: issue,
+      data: populatedIssue,
     });
   } catch (error) {
     next(error);
@@ -201,10 +209,46 @@ const assignIssue = async (req, res, next) => {
     await issue.save();
     const updatedIssue = await Issue.findById(issue._id)
       .populate("createdBy", "fullName email avatar")
-      .populate("assignedTo", "fullName email avatar");
+      .populate("assignedTo", "fullName email avatar")
+      .populate("comments.author", "fullName avatar");
     res.status(200).json({
       success: true,
       message: "Issue assigned successfully",
+      data: updatedIssue,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc    Add a comment to an issue
+ * @route   POST /api/v1/issues/:id/comments
+ * @access  Private
+ */
+const addComment = async (req, res, next) => {
+  try {
+    const body = req.body.body?.trim();
+    if (!body) {
+      return res.status(400).json({ success: false, message: "Comment text is required" });
+    }
+
+    const issue = await Issue.findById(req.params.id);
+    if (!issue) {
+      return res.status(404).json({ success: false, message: "Issue not found" });
+    }
+
+    issue.comments.push({ body, author: req.user._id });
+    await issue.save();
+
+    const updatedIssue = await Issue.findById(issue._id)
+      .populate("createdBy", "fullName email avatar")
+      .populate("assignedTo", "fullName email avatar")
+      .populate("comments.author", "fullName avatar");
+
+    res.status(201).json({
+      success: true,
+      message: "Comment added successfully",
       data: updatedIssue,
     });
   } catch (error) {
@@ -245,5 +289,6 @@ module.exports = {
   deleteIssue,
   getIssuesByStatus,
   assignIssue,
+  addComment,
   getDashboardSummary,
 };
