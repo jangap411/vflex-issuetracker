@@ -2,6 +2,8 @@
 
 Issue tracker with a React/Vite frontend and Express/MongoDB API.
 
+View the live demo: [issuetracker.digitalkumul.com](https://issuetracker.digitalkumul.com)
+
 ## Tech stack
 
 React 19 and React Router power the single-page frontend, including local session state and protected page routing; Vite provides the development server and production build.
