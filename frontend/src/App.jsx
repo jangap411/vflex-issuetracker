@@ -70,6 +70,7 @@ const App = () => {
                 <SidebarNav
                   isOpen={isSidebarOpen}
                   onClose={() => setIsSidebarOpen(false)}
+                  onLogout={() => setSession(null)}
                   user={session.user}
                 />
 

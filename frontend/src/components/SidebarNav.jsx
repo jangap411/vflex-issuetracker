@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { logout } from "../services/auth";
 
-const SidebarNav = ({ isOpen, onClose, user }) => {
+const SidebarNav = ({ isOpen, onClose, onLogout, user }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const displayName = user?.fullName || user?.name || "User";
@@ -31,6 +31,7 @@ const SidebarNav = ({ isOpen, onClose, user }) => {
 
   const handleLogout = async () => {
     await logout();
+    onLogout();
     onClose();
     navigate("/login", { replace: true });
   };
