@@ -11,7 +11,19 @@ export const toTask = (issue) => ({
   assignee: issue.assignedTo
     ? { id: issue.assignedTo._id, name: issue.assignedTo.fullName, avatar: issue.assignedTo.avatar }
     : null,
-  commentsCount: issue.commentsCount || 0,
+  comments: (issue.comments || []).map((comment) => ({
+    id: comment._id,
+    body: comment.body,
+    author: comment.author
+      ? {
+          id: comment.author._id,
+          name: comment.author.fullName,
+          avatar: comment.author.avatar,
+        }
+      : null,
+    createdAt: comment.createdAt,
+  })),
+  commentsCount: issue.comments?.length || issue.commentsCount || 0,
   attachmentsCount: issue.attachments?.length || 0,
   dueDate: issue.dueDate ? issue.dueDate.slice(0, 10) : "",
 });
@@ -26,3 +38,7 @@ export const updateIssueStatus = async (id, status) => toTask((await apiRequest(
   body: JSON.stringify({ status }),
 })).data);
 export const deleteIssue = (id) => apiRequest(`/issues/${id}`, { method: "DELETE" });
+export const addComment = async (id, body) => toTask((await apiRequest(`/issues/${id}/comments`, {
+  method: "POST",
+  body: JSON.stringify({ body }),
+})).data);

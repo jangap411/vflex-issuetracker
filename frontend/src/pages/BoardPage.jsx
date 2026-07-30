@@ -9,6 +9,7 @@ import {
   deleteIssue,
   getIssues,
   updateIssueStatus,
+  addComment as addIssueComment,
 } from "../services/issues";
 import {
   SlidersHorizontal,
@@ -122,6 +123,14 @@ const BoardPage = ({
     } catch (requestError) {
       setError(requestError.message);
     }
+  };
+
+  const handleAddComment = async (taskId, body) => {
+    const updatedTask = await addIssueComment(taskId, body);
+    setTasks((currentTasks) =>
+      currentTasks.map((task) => (task.id === updatedTask.id ? updatedTask : task)),
+    );
+    setSelectedTask(updatedTask);
   };
 
   return (
@@ -246,6 +255,7 @@ const BoardPage = ({
         onClose={() => setSelectedTask(null)}
         onUpdateStatus={handleUpdateTaskStatus}
         onDeleteTask={handleDeleteTask}
+        onAddComment={handleAddComment}
       />
     </div>
   );

@@ -10,6 +10,7 @@ const {
   getIssuesByStatus,
   updateIssueStatus,
   assignIssue,
+  addComment,
 } = require("../controllers/issueController");
 
 const { protect } = require("../middleware/authMiddleware");
@@ -27,6 +28,7 @@ router.route("/status/:status").get(getIssuesByStatus);
 
 router.route("/:id/status").patch(updateIssueStatus);
 router.route("/:id/assign").patch(assignIssue);
+router.route("/:id/comments").post(addComment);
 router.route("/:id").get(getIssueById).put(updateIssue).delete(deleteIssue);
 
 module.exports = router;

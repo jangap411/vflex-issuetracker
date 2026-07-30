@@ -1,9 +1,19 @@
+import { useState } from "react";
 import {
   X,
   Clock,
   MessageSquare,
   Trash2,
+  Send,
 } from "lucide-react";
+
+const formatCommentDate = (date) => {
+  if (!date) return "Just now";
+  const parsedDate = new Date(date);
+  return Number.isNaN(parsedDate.getTime())
+    ? "Just now"
+    : parsedDate.toLocaleString([], { dateStyle: "medium", timeStyle: "short" });
+};
 
 const TaskDetailModal = ({
   task,
@@ -11,8 +21,33 @@ const TaskDetailModal = ({
   onClose,
   onUpdateStatus,
   onDeleteTask,
+  onAddComment,
 }) => {
+  const [commentText, setCommentText] = useState("");
+  const [commentError, setCommentError] = useState("");
+  const [isSubmittingComment, setIsSubmittingComment] = useState(false);
+
   if (!isOpen || !task) return null;
+
+  const handleCommentSubmit = async (event) => {
+    event.preventDefault();
+    const body = commentText.trim();
+    if (!body) {
+      setCommentError("Write a comment before posting.");
+      return;
+    }
+
+    setCommentError("");
+    setIsSubmittingComment(true);
+    try {
+      await onAddComment(task.id, body);
+      setCommentText("");
+    } catch (error) {
+      setCommentError(error.message || "Unable to add comment.");
+    } finally {
+      setIsSubmittingComment(false);
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
@@ -132,6 +167,83 @@ const TaskDetailModal = ({
               ))}
             </div>
           </div>
+
+          {/* Discussion */}
+          <section>
+            <h4 className="text-xs font-bold uppercase tracking-wider text-outline mb-3">
+              Discussion ({task.commentsCount || 0})
+            </h4>
+            <div className="space-y-3">
+              {task.comments?.length ? (
+                task.comments.map((comment) => (
+                  <article
+                    key={comment.id}
+                    className="rounded-xl border border-outline-variant/50 bg-surface-container/40 p-3"
+                  >
+                    <div className="flex items-center gap-2">
+                      {comment.author?.avatar ? (
+                        <img
+                          src={comment.author.avatar}
+                          alt=""
+                          className="h-7 w-7 rounded-full object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-xs font-bold text-on-primary">
+                          {(comment.author?.name || "U").charAt(0).toUpperCase()}
+                        </div>
+                      )}
+                      <div>
+                        <p className="text-xs font-semibold text-on-surface">
+                          {comment.author?.name || "Unknown user"}
+                        </p>
+                        <p className="text-[11px] text-outline">
+                          {formatCommentDate(comment.createdAt)}
+                        </p>
+                      </div>
+                    </div>
+                    <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-on-surface-variant">
+                      {comment.body}
+                    </p>
+                  </article>
+                ))
+              ) : (
+                <p className="rounded-xl border border-dashed border-outline-variant/60 px-4 py-5 text-center text-xs text-outline">
+                  No comments yet. Start the discussion below.
+                </p>
+              )}
+            </div>
+
+            <form onSubmit={handleCommentSubmit} className="mt-4">
+              <label htmlFor="new-comment" className="sr-only">
+                Add a comment
+              </label>
+              <textarea
+                id="new-comment"
+                value={commentText}
+                onChange={(event) => setCommentText(event.target.value)}
+                maxLength={2000}
+                rows={3}
+                placeholder="Add a comment…"
+                className="w-full resize-y rounded-xl border border-outline-variant/60 bg-surface p-3 text-sm text-on-surface placeholder:text-outline focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+              />
+              {commentError && (
+                <p className="mt-2 text-xs text-red-600">{commentError}</p>
+              )}
+              <div className="mt-2 flex items-center justify-between gap-3">
+                <span className="text-[11px] text-outline">
+                  {commentText.length}/2000
+                </span>
+                <button
+                  type="submit"
+                  disabled={isSubmittingComment || !commentText.trim()}
+                  className="inline-flex items-center gap-2 rounded-xl bg-primary px-3 py-2 text-xs font-semibold text-on-primary transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <Send className="h-3.5 w-3.5" />
+                  {isSubmittingComment ? "Posting…" : "Post comment"}
+                </button>
+              </div>
+            </form>
+          </section>
         </div>
 
         {/* Footer */}
