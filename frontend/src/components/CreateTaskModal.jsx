@@ -13,8 +13,8 @@ const CreateTaskModal = ({
   const [status, setStatus] = useState(defaultStatus);
   const [priority, setPriority] = useState("Medium");
   const [assigneeId, setAssigneeId] = useState("");
-  const [tagsInput, setTagsInput] = useState("Frontend, UI/UX");
-  const [dueDate, setDueDate] = useState("2026-08-10");
+  const [tagsInput, setTagsInput] = useState("");
+  const [dueDate, setDueDate] = useState("");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -74,7 +74,11 @@ const CreateTaskModal = ({
           onSubmit={handleSubmit}
           className="p-6 space-y-4 overflow-y-auto flex-1 text-sm"
         >
-          {error && <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-600">{error}</p>}
+          {error && (
+            <p className="rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-600">
+              {error}
+            </p>
+          )}
           {/* Title */}
           <div>
             <label className="block text-xs font-semibold text-on-surface mb-1.5 uppercase tracking-wider">
