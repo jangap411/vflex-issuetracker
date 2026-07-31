@@ -18,7 +18,6 @@ const authAttemptLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
 
-keyGenerator:(req)=>req.ip,
 
   message: {
     success: false,
